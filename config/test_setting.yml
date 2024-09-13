@@ -1,0 +1,13 @@
+batch_size: 64
+image_size: !!python/tuple
+- 224
+- 224
+model_name: resnet101
+model_type: timm
+model_types: timm
+models: []
+num_classes: 500
+save_result_path: ./resnet101_result
+save_result_paths: []
+testdata_dir: ../data/test
+testdata_info_file: ../data/test.csv

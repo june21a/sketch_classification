@@ -1,0 +1,43 @@
+augmentation:
+  bright_contrast:
+    brightness_limit: 0.2
+    contrast_limit: 0.2
+    p: 0.5
+  coarse_dropout:
+    max_height: 20
+    max_holes: 5
+    max_width: 20
+    p: 0.5
+  horizontal_flip:
+    p: 0.5
+  random_crop:
+    height: 200
+    width: 200
+  shift_scale_rotate:
+    p: 0.5
+    rotate_limit: 20
+    scale_limit: 0.1
+    shift_limit: 0.05
+  augmentation_table:
+    bright_contras: True
+    coarse_dropout: True
+    horizontal_flip: True
+    random_crop: False
+    shift_scale_rotate: True
+batch_size: 64
+epochs: 20
+image_size: !!python/tuple
+- 224
+- 224
+is_pretrained: True
+learning_rate: 0.0001
+weight_decay: 0.01
+model_name: vit_large_patch16_224
+model_type: timm
+optimizer: adamW
+save_result_path: ./vit_large_patch16_224_result
+schedular_type: cosine
+test_size: 0.2
+traindata_dir: ../data/train
+traindata_info_file: ../data/train.csv
+project_dir: "/data/ephemeral/home/june21a"
