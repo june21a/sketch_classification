@@ -1,20 +1,35 @@
 # 파일 구조
 
 |-- data ( data folder )
+
 |   |-- sample_submission.csv
+
 |   |-- test
+
 |   |-- test.csv
+
 |   |-- train
+
 |   `-- train.csv
+
 |-- june21a ( project folder )
+
 |   |-- baseline_code
+
 |   |-- config
+
 |   |-- dataloader
+
 |   |-- infer.py
+
 |   |-- model
+
 |   |-- requirements.txt
+
 |   |-- timm_list.txt
+
 |   |-- train.py
+
 |   |-- util
 
 
