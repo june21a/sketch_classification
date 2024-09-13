@@ -10,7 +10,7 @@
 
 |   |-- train
 
-|   `-- train.csv
+|   |-- train.csv
 
 |-- june21a ( project folder )
 
