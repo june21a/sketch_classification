@@ -1,5 +1,10 @@
-augmentation:
-  bright_contrast:
+# augmentation을 추가시 다음을 수정해야함
+# 1. 아래에 해당 augmentation의 hyperparameter 입력
+# 2. augmentation table에 추가
+# 3. dataloader.preprocess의 Albumentation에서 aug_transforms 리스트에 augmentation 추가 및 조건문 삽입
+##########################################
+augmentation: # augmentation setting
+  bright_contrast: # random brightness and contrast
     brightness_limit: 0.2
     contrast_limit: 0.2
     p: 0.5
@@ -18,26 +23,62 @@ augmentation:
     rotate_limit: 20
     scale_limit: 0.1
     shift_limit: 0.05
-  augmentation_table:
-    bright_contras: True
+  augmentation_table: # augmentation on/off를 위한 table
+    bright_contrast: True
     coarse_dropout: True
     horizontal_flip: True
     random_crop: False
     shift_scale_rotate: True
+
+# 각종 training setting
+# 나중에 argparser로 이동할 예정
 batch_size: 64
-epochs: 20
+epochs: 3
 image_size: !!python/tuple
 - 224
 - 224
 is_pretrained: True
-learning_rate: 0.0001
+learning_rate: 0.001
 weight_decay: 0.01
-model_name: vit_large_patch16_224
+
+# optimizer나 schedular에 관한 자세한 세팅은 해당 .py파일에 있습니다
+# 여기로 옮겨서 같이 관리하려고 했는데 너무 많아서 나중에 처리할 예정
+model_name: resnet18
 model_type: timm
-optimizer: adamW
-save_result_path: ./vit_large_patch16_224_result
+optimizer: adamW 
 schedular_type: cosine
 test_size: 0.2
-traindata_dir: ../data/train
-traindata_info_file: ../data/train.csv
-project_dir: "/data/ephemeral/home/june21a"
+
+# 경로 설정
+save_result_path: ./resnet18_test # 훈련 모델을 저장할 위치
+traindata_dir: ../data/train # 훈련데이터가 위치한 폴더
+traindata_info_file: ../data/train.csv # train image meta data가 들어있는 csv파일 위치
+project_dir: "/data/ephemeral/home/june21a" #프로젝트 폴더
+project_name: 'sketch_classification example'
+test_name: "resnet_test"
+
+
+################################
+# |-- data ( data folder )
+# |   |-- sample_submission.csv
+# |   |-- test
+# |   |-- test.csv
+# |   |-- train
+# |   `-- train.csv
+# |-- june21a ( project folder )
+# |   |-- baseline_code
+# |   |-- config
+# |   |-- dataloader
+# |   |-- infer.py
+# |   |-- model
+# |   |-- output.csv
+# |   |-- requirements.txt
+# |   |-- resnet101_result
+# |   |-- resnet18_test
+# |   |-- shared_codes
+# |   |-- test.ipynb
+# |   |-- timm_list.txt
+# |   |-- train.py
+# |   |-- util
+# |   |-- vit_large_patch16_224_result
+# |   `-- wandb

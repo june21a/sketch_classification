@@ -12,7 +12,7 @@ import wandb
 import matplotlib.pyplot as plt
 
 
-
+# 원본 baseline 코드에서 가져온 class에 몇가지 메서드가 추가되었습니다.
 class Trainer:
     def __init__(
         self, 
@@ -41,7 +41,11 @@ class Trainer:
         
         self.train_losses = []
         self.val_losses = []
+        self.train_accuracies = []
+        self.val_accuracies = []
 
+    
+    # epoch이 진행되면서 acc, loss의 양상을 보여줍니다
     def plot_metrics(self):
         epochs = range(1, self.epochs + 1)
         
@@ -89,6 +93,7 @@ class Trainer:
             torch.save(self.model.state_dict(), best_model_path)
             print(f"Save {epoch}epoch result. Loss = {loss:.4f}")
 
+
     def train_epoch(self) -> float:
         # 한 에폭 동안의 훈련을 진행
         self.model.train()
@@ -123,6 +128,7 @@ class Trainer:
                    'training_acc' : final_acc})
         
         self.train_losses.append(final_loss)
+        self.train_accuracies.append(final_acc)
         return final_loss, final_acc
 
     def validate(self) -> float:
@@ -150,8 +156,10 @@ class Trainer:
         wandb.log({'validation_loss' : final_loss,
                    'validation_acc' : final_acc})
         
+        self.val_accuracies.append(final_acc)
         self.val_losses.append(final_loss)
         return final_loss, final_acc
+
 
     def train(self) -> None:
         # 전체 훈련 과정을 관리
@@ -173,7 +181,8 @@ class Trainer:
 
 def main():
     ##########################################################################################################
-    ########## setting. 나중에 config에서 yaml이나 json으로 관리해볼 예정
+    ########## setting. 나중에 argparser로 대체할 예정. infer.py도 마찬가지
+    # 만약 argparser로 할거면 augmentation setting은 고정해두고 해야할듯
     with open('./config/training_setting.yml', 'r') as f:
         config = yaml.full_load(f)
     
@@ -215,8 +224,8 @@ def main():
     ##########################################################################################################
     ##### wandb setting
     
-    wandb.init(project='sketch_classification example')
-    wandb.run.name = 'vit_test'
+    wandb.init(project=config["project_name"])
+    wandb.run.name = config["test_name"]
     wandb.run.save()
     
     wandb.config.update(config)

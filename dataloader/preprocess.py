@@ -71,7 +71,7 @@ class AlbumentationsTransform:
             if augmentation_table["shift_scale_rotate"]:
                 aug_transforms.append(A.ShiftScaleRotate(**shift_scale_rotate_setting))
             if augmentation_table["bright_contrast"]:
-                augmentation_table.append(A.RandomBrightnessContrast(**bright_contrast_setting))
+                aug_transforms.append(A.RandomBrightnessContrast(**bright_contrast_setting))
             if augmentation_table["coarse_dropout"]:
                 aug_transforms.append(A.CoarseDropout(**coarse_dropout_setting))
             

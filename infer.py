@@ -1,3 +1,10 @@
+##############################
+# TO DO
+# 앙상블 구현해야됨
+# test시에 augmentation 서로 다른 여러개 적용한 데이터에 대해 같은 모델로 예측하고 평균내는 거 구현해야됨
+# 모델 여러개 불러와서 앙상블 하는 거 구현해야됨
+
+
 import os
 import yaml
 
@@ -19,8 +26,9 @@ from model import _model
 def inference(
     model: nn.Module, 
     device: torch.device, 
-    test_loader: DataLoader
-):
+    test_loader: DataLoader):
+    
+    
     # 모델을 평가 모드로 설정
     model.to(device)
     model.eval()
@@ -45,10 +53,10 @@ def inference(
 def main():
     ##############################################################
     with open("./config/test_setting.yml", "r") as file:
-        config = yaml.safe_load(file)
+        config = yaml.full_load(file)
 
-    with open("./config/train_setting.yml", "r") as file:
-        train_config = yaml.safe_load(file)
+    with open("./config/training_setting.yml", "r") as file:
+        train_config = yaml.full_load(file)
     
     ############# test setting 이것도 나중에 파일이나 argparser로 가져오면 좋을듯
     testdata_dir = config["testdata_dir"]
@@ -83,6 +91,7 @@ def main():
     # test image preprocessing
     test_transform = preprocess.AlbumentationsTransform(image_size = IMAGE_SIZE, 
                                                          is_train=False,
+                                                         save_name = "test_transform",
                                                          augmentation_table=train_config["augmentation"]["augmentation_table"]
                                                         )
     
