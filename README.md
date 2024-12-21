@@ -32,6 +32,13 @@
 📜train.py
 ```
 
+# 사용 방법
+- 각각 train_setting.yml, test_setting.yml을 수정하신 후 train.py, infer.py를 실행
+  ```
+  python train.py
+  python infer.py
+  ```
+
 
 # dataloader
 - preprocessor : augmentation과 전처리를 담당하는 모듈.
