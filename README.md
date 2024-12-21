@@ -1,36 +1,30 @@
 # 파일 구조
-
-|-- data ( data folder )
-
-|   |-- sample_submission.csv
-
-|   |-- test
-
-|   |-- test.csv
-
-|   |-- train
-
-|   |-- train.csv
-
-|-- june21a ( project folder )
-
-|   |-- baseline_code
-
-|   |-- config
-
-|   |-- dataloader
-
-|   |-- infer.py
-
-|   |-- model
-
-|   |-- requirements.txt
-
-|   |-- timm_list.txt
-
-|   |-- train.py
-
-|   |-- util
+📦EDA
+ ┣ 📜EDA.ipynb
+ ┣ 📂_list
+📦config
+ ┣ 📜test_setting.yml
+ ┣ 📜test_transform.yml
+ ┣ 📜train_transform.yml
+ ┣ 📜training_setting.yml
+ ┗ 📜transform.json
+📦dataloader
+ ┣ 📜dataloader.py
+ ┗ 📜preprocess.py
+📦model
+ ┣ 📜_loss.py
+ ┣ 📜_model.py
+ ┣ 📜_optimizer.py
+ ┗ 📜_schedular.py
+📦util
+ ┣ 📜seed.py
+ ┣ 📜utility.py
+ ┗ 📜visualize.py
+📜.gitignore
+📜README.md
+📜infer.py
+📜requirements.txt
+📜train.py
 
 
 
