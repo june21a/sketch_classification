@@ -1,61 +1,113 @@
-# augmentation을 추가시 다음을 수정해야함
-# 1. 아래에 해당 augmentation의 hyperparameter 입력
-# 2. augmentation table에 추가
-# 3. dataloader.preprocess의 Albumentation에서 aug_transforms 리스트에 augmentation 추가 및 조건문 삽입
-##########################################
-augmentation: # augmentation setting
-  bright_contrast: # random brightness and contrast
-    brightness_limit: 0.2
-    contrast_limit: 0.2
-    p: 0.5
-  coarse_dropout:
-    max_height: 20
-    max_holes: 5
-    max_width: 20
-    p: 0.5
-  horizontal_flip:
-    p: 0.5
-  random_crop:
-    height: 200
-    width: 200
-  shift_scale_rotate:
-    p: 0.5
-    rotate_limit: 20
-    scale_limit: 0.1
-    shift_limit: 0.05
-  augmentation_table: # augmentation on/off를 위한 table
-    bright_contrast: True
-    coarse_dropout: True
-    horizontal_flip: True
-    random_crop: False
-    shift_scale_rotate: True
+# augmentation/preprocess setting
+augmentation: 
+  save_name: train_transform.yml
 
-# 각종 training setting
-# 나중에 argparser로 이동할 예정
+
+  # 들어간 것만 들어간 순서대로 적용. 세부 설정 원할경우 setting에 직접 적기
+  # setting이나 list의 값은 꼭 augmentation_list.txt를 참고해서 넣어주세요
+  # Resize, ToTensor, Normalize는 is_train과 관계 없이 default로 적용됩니다.
+  # 적용 순서 : [Resize -> select -> Normalize -> ToTensor]
+  select: [RandomBrightnessContrast, CoarseDropout, HorizontalFlip, ShiftScaleRotate, RandomSunFlare] 
+  setting:
+    Resize:
+      height: 280
+      width: 280
+
+    RandomBrightnessContrast: # random brightness and contrast
+      brightness_limit: 0.2
+      contrast_limit: 0.2
+      p: 0.5
+
+    CoarseDropout: # random dropout
+      max_height: 20
+      max_holes: 5
+      max_width: 20
+      p: 0.5
+
+    HorizontalFlip: #horizonttal flip
+      p: 0.5
+    
+    Flip:
+      p: 0.5
+
+    RandomCrop: #random crop
+      height: 224
+      width: 224
+
+    ShiftScaleRotate: #shift, scale, rotate
+      p: 0.5
+      rotate_limit: 20
+      scale_limit: 0.1
+      shift_limit: 0.05
+
+    Normalize:
+      mean: [0.5, 0.5, 0.5]
+      std: [0.5, 0.5, 0.5]
+##############################################################################
+
+# training setting
+test_size: 0.2 # validation split rate
 batch_size: 64
-epochs: 3
-image_size: !!python/tuple
-- 224
-- 224
-is_pretrained: True
-learning_rate: 0.001
-weight_decay: 0.01
+epochs: 1
 
-# optimizer나 schedular에 관한 자세한 세팅은 해당 .py파일에 있습니다
-# 여기로 옮겨서 같이 관리하려고 했는데 너무 많아서 나중에 처리할 예정
-model_name: resnet18
-model_type: timm
-optimizer: adamW 
-schedular_type: cosine
-test_size: 0.2
 
-# 경로 설정
+
+# model
+model_name: resnet18 # timm 모델명. timm_list.txt에 위치
+model_type: timm # torchvision or timm
 save_result_path: ./resnet18_test # 훈련 모델을 저장할 위치
+is_pretrained: True # 사전 훈련 모델 여부
+
+
+# optimizer
+optimizer: 
+  select: adamW
+  adamW:
+    name: adamW
+    setting:
+      lr: 0.001
+      weight_decay: 0.01
+
+  adam:
+    name: adam
+    setting:
+      lr: 0.001
+      weight_decay: 0.01
+  
+  SGD:
+    name: SGD
+    setting:
+      lr: 0.001
+      weight_decay: 0.01
+
+
+# schedular
+schedular:
+  select: cosine # 해당 위치만 바꾸면 schedular 선택 가능합니다.
+
+  cosine:
+    name: cosine
+    setting:
+      T_max: 10 # 반주기가 10에폭
+      eta_min: 0.00001 # min lr
+
+  steplr:
+    name: steplr
+    setting:
+      step_size: 3 # n epoch마다 lr 감소
+      scheduler_gamma: 0.1 # lr감소 비율
+
+
+# wandb 설정
+project_name: 'local_test' # 프로젝트 이름
+test_name: "resnet_test" # 해당 프로젝트 내 실험 이름
+
+
+
+# 기본 경로 설정(한번 설정 후 바꿀 필요 없음)
 traindata_dir: ../data/train # 훈련데이터가 위치한 폴더
 traindata_info_file: ../data/train.csv # train image meta data가 들어있는 csv파일 위치
-project_dir: "/data/ephemeral/home/june21a" #프로젝트 폴더
-project_name: 'sketch_classification example'
-test_name: "resnet_test"
+project_dir: "C:/Users/User/Desktop/naver_boostcamp/project/cv_05" #프로젝트 폴더
 
 
 ################################

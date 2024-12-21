@@ -52,19 +52,16 @@ def inference(
 
 def main():
     ##############################################################
-    with open("./config/test_setting.yml", "r") as file:
+    with open("./config/test_setting.yml", "r", encoding='utf-8') as file:
         config = yaml.full_load(file)
-
-    with open("./config/training_setting.yml", "r") as file:
-        train_config = yaml.full_load(file)
     
     ############# test setting 이것도 나중에 파일이나 argparser로 가져오면 좋을듯
+    os.chdir(config["project_dir"])
     testdata_dir = config["testdata_dir"]
     testdata_info_file = config["testdata_info_file"]
     num_classes = config["num_classes"]
     
     # inference setting
-    IMAGE_SIZE = train_config["image_size"]
     BATCH_SIZE = config["batch_size"]
     
     
@@ -73,11 +70,9 @@ def main():
     MODEL_NAME = config["model_name"]
     save_result_path = config["save_result_path"]
         
-    
-    # Ensemble 할 시 여러 best model 불러오기
-    MODEL_TYPES = config["model_types"]
-    MODELS = config["models"]
-    save_result_paths = config["save_result_paths"]
+        
+    # augmentation은 training_setting으로부터 가져옵니다
+    AUGMENTATION = config["augmentation"]
     ##############################################################
     
     # device check
@@ -89,11 +84,7 @@ def main():
     test_info = pd.read_csv(testdata_info_file)
     
     # test image preprocessing
-    test_transform = preprocess.AlbumentationsTransform(image_size = IMAGE_SIZE, 
-                                                         is_train=False,
-                                                         save_name = "test_transform",
-                                                         augmentation_table=train_config["augmentation"]["augmentation_table"]
-                                                        )
+    test_transform = preprocess.AlbumentationsTransform(is_train=False, **AUGMENTATION)
     
     
     # test dataloader

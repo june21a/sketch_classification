@@ -1,13 +1,59 @@
+# augmentation/preprocess setting
+augmentation: 
+  save_name: test_transform.yml
+
+
+  # 들어간 것만 들어간 순서대로 적용. 세부 설정 원할경우 setting에 직접 적기
+  # setting이나 list의 값은 꼭 augmentation_list.txt를 참고해서 넣어주세요
+  # Resize, ToTensor, Normalize는 is_train과 관계 없이 default로 적용됩니다.
+  # 적용 순서 : [Resize -> select -> Normalize -> ToTensor]
+  select: [RandomBrightnessContrast, CoarseDropout, HorizontalFlip, ShiftScaleRotate, RandomSunFlare] 
+  setting:
+    Resize:
+      height: 224
+      width: 224
+
+    RandomBrightnessContrast: # random brightness and contrast
+      brightness_limit: 0.2
+      contrast_limit: 0.2
+      p: 0.5
+
+    CoarseDropout: # random dropout
+      max_height: 20
+      max_holes: 5
+      max_width: 20
+      p: 0.5
+
+    HorizontalFlip: #horizonttal flip
+      p: 0.5
+
+    RandomCrop: #random crop
+      height: 200
+      width: 200
+
+    ShiftScaleRotate: #shift, scale, rotate
+      p: 0.5
+      rotate_limit: 20
+      scale_limit: 0.1
+      shift_limit: 0.05
+
+    Normalize:
+      mean: [0.5, 0.5, 0.5]
+      std: [0.5, 0.5, 0.5]
+
+
+# batch_size
 batch_size: 64
-image_size: !!python/tuple
-- 224
-- 224
-model_name: resnet101
+
+# model
+model_name: resnet18
 model_type: timm
-model_types: timm
-models: []
-num_classes: 500
-save_result_path: ./resnet101_result
-save_result_paths: []
+save_result_path: ./resnet18_test
+
+
+
+# 한번 설정 후 바꿀 필요 없음
 testdata_dir: ../data/test
 testdata_info_file: ../data/test.csv
+project_dir: "C:/Users/User/Desktop/naver_boostcamp/project/cv_05" #프로젝트 폴더
+num_classes: 500

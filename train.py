@@ -151,6 +151,7 @@ class Trainer:
                 total_loss += loss.item()
                 progress_bar.set_postfix(loss=loss.item(), acc=total_correct / total_num)
         
+        
         final_loss = total_loss / len(self.val_loader)
         final_acc = total_correct / total_num
         wandb.log({'validation_loss' : final_loss,
@@ -183,7 +184,7 @@ def main():
     ##########################################################################################################
     ########## setting. 나중에 argparser로 대체할 예정. infer.py도 마찬가지
     # 만약 argparser로 할거면 augmentation setting은 고정해두고 해야할듯
-    with open('./config/training_setting.yml', 'r') as f:
+    with open('./config/training_setting.yml', 'r', encoding='utf-8') as f:
         config = yaml.full_load(f)
     
     
@@ -199,10 +200,8 @@ def main():
     EPOCHS = config["epochs"]
     save_result_path = config["save_result_path"]
     
-    SCHEDULAR_TYPE = config["schedular_type"]
-    OPTIMIZER = config["optimizer"]
-    LEARNING_RATE = config["learning_rate"]
-    WEIGHT_DECAY = config["weight_decay"]
+    SCHEDULAR = config["schedular"][config["schedular"]["select"]]
+    OPTIMIZER = config["optimizer"][config["optimizer"]["select"]]
     
     
     # parse model info
@@ -212,24 +211,16 @@ def main():
     
 
     # parse augmentation and preprocessing setting
-    IMAGE_SIZE = config["image_size"]
-    shift_scale_rotate_setting = config["augmentation"]["shift_scale_rotate"]
-    bright_contrast_setting = config["augmentation"]["bright_contrast"]
-    coarse_dropout_setting = config["augmentation"]["coarse_dropout"]
-    random_crop_setting = config["augmentation"]["random_crop"]
-    horizontal_flip_setting = config["augmentation"]["horizontal_flip"]
-    augmentation_table = config["augmentation"]["augmentation_table"]
-    ##########################################################################################################
-    
+    AUGMENTATION = config["augmentation"]
     ##########################################################################################################
     ##### wandb setting
-    
     wandb.init(project=config["project_name"])
     wandb.run.name = config["test_name"]
     wandb.run.save()
     
     wandb.config.update(config)
     ##########################################################################################################
+    
     
     # device check
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -247,23 +238,9 @@ def main():
     
     
     # train, test image에 대한 전처리 정의
-    train_transform = preprocess.AlbumentationsTransform(image_size = IMAGE_SIZE, 
-                                                         is_train=True,
-                                                         save_name="train_transform.yml",
-                                                         shift_scale_rotate_setting = shift_scale_rotate_setting,
-                                                         bright_contrast_setting = bright_contrast_setting,
-                                                         coarse_dropout_setting = coarse_dropout_setting,
-                                                         random_crop_setting = random_crop_setting,
-                                                         horizontal_flip_setting = horizontal_flip_setting,
-                                                         augmentation_table = augmentation_table
-                                                         )
-    
-    test_transform = preprocess.AlbumentationsTransform(image_size = IMAGE_SIZE, 
-                                                         is_train=False,
-                                                         save_name="test_transform.yml",
-                                                         random_crop_setting = random_crop_setting,
-                                                         augmentation_table = augmentation_table
-                                                        )
+    train_transform = preprocess.AlbumentationsTransform(is_train=True, **AUGMENTATION)
+    AUGMENTATION["save_name"] = "test_transform.yml"
+    test_transform = preprocess.AlbumentationsTransform(is_train=False, **AUGMENTATION)
     
     
     # train, test dataloader
@@ -281,8 +258,7 @@ def main():
                                                  is_inference = False, 
                                                  seedworker = seed.seed_worker)
     
-    
-    # model 정의하기
+    # # model 정의하기
     model = _model.ModelSelector(
         model_type = MODEL_TYPE,
         num_classes = num_classes,
@@ -292,9 +268,9 @@ def main():
     
     
     # optimizer, loss, schedular
-    optimizer = _optimizer.get_optimizer(OPTIMIZER, model.parameters(), lr=LEARNING_RATE, weight_decay = WEIGHT_DECAY)
+    optimizer = _optimizer.get_optimizer(model.parameters(), **OPTIMIZER)
     criterion = _loss.get_loss()
-    schedular = _schedular.get_schedular(SCHEDULAR_TYPE, optimizer, len(train_dataloader) // 64 + 1)
+    schedular = _schedular.get_schedular(optimizer, **SCHEDULAR)
     
     
     # Trainer class

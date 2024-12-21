@@ -48,7 +48,7 @@ class CustomDataset(Dataset):
 
 
 def train_val_split(info_df, test_size):
-    # 각 class별로 8:2의 비율이 되도록 학습과 검증 데이터를 분리.
+    # 학습과 검증 데이터를 분리
     train_df, val_df = train_test_split(
         info_df, 
         test_size=test_size,

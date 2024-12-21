@@ -2,11 +2,10 @@ from torch import optim
 
 
 
-def get_optimizer(name, params, **kwargs):
+def get_optimizer(params, **kwargs):
     """_summary_
 
     Args:
-        name (_type_): optimizer name
         params (_type_): model.parameters()
 
     Raises:
@@ -15,22 +14,26 @@ def get_optimizer(name, params, **kwargs):
     Returns:
         _type_: _description_
     """
+    name = kwargs["name"] if "setting" in kwargs else "adam"
+    setting = kwargs["setting"] if "setting" in kwargs else {}
+    
+    
     if name == "adam":
         return optim.Adam(
             params,
-            **kwargs
+            **setting
         )
         
     if name == "adamW":
         return optim.AdamW(
             params,
-            **kwargs
+            **setting
         )
     
     if name == "SGD":
         return optim.SGD(
             params,
-            **kwargs
+            **setting
         )
         
     raise NameError("No such optimizer exists")

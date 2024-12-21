@@ -9,82 +9,64 @@ import torch
 import numpy as np
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from inspect import getmembers, isclass
 
+
+# tuple list를 dictionary로 바꿔줍니다. 
+def Convert(tup):
+    di = {}
+    for a, b in tup:
+        di[a] = b
+    return di
+
+# Albumentation의 모든 class를 가져오는 함수입니다.
+def get_augment_dict():
+    return Convert(getmembers(A, isclass))
 
 
 class AlbumentationsTransform:
     def __init__(self,
-                 image_size,
-                 is_train: bool = True,
-                 save_name = "transform.json",
-                 shift_scale_rotate_setting = {
-                    "shift_limit": 0.05, 
-                    "scale_limit": 0.1, 
-                    "rotate_limit": 20, 
-                    "p": 0.5},
-                 bright_contrast_setting = {
-                     "brightness_limit": 0.2,
-                     "contrast_limit": 0.2,
-                     "p": 0.5
-                 },
-                 coarse_dropout_setting = {
-                    "max_holes": 5,
-                    "max_height": 20,
-                    "max_width": 20,
-                    "p": 0.5
-                 },
-                 random_crop_setting = {
-                     "width": 200,
-                     "height": 200
-                 },
-                 horizontal_flip_setting = {
-                     "p": 0.5
-                 },
-                 augmentation_table = {
-                    "bright_contrast": True,
-                    "coarse_dropout": True,
-                    "horizontal_flip": True,
-                    "random_crop": False,
-                    "shift_scale_rotate": True
-                }):
+                 is_train = True,
+                 **kwargs):
         
+        # get albumentation module list
+        augmentation_dict = get_augment_dict()
         
-        resize = [A.Resize(*image_size)]
+        # parsing from kwargs
+        save_name = kwargs['save_name']
+        select = kwargs['select']
+        setting = kwargs['setting']
+        
+        # default transforms
+        resize_transform = [A.Resize(**(setting["Resize"] if "Resize" in setting else {"height":224, "width":224}))]
         common_transforms = [
-            A.Normalize(),
+            A.Normalize(**(setting["Normalize"] if "Normalize" in setting else {})),
             ToTensorV2()
         ]
         
-        # augmentation을 이것저것 추가하기 위해 먼저 list에 담기
-        # yml로 on/off 할 수 있도록 구성하려고 이렇게 했는데 아이디어가 없다..
-        aug_transforms = []
+        # augmentation transforms
+        transform_train = []
+        transform_test = []
+        for s in select:
+            try:
+                transform_train.append(augmentation_dict[s](**(setting[s] if s in setting else {})))
+            except:
+                raise NameError(f"augmentation {s} is not in Albumentation")
+
+            if s == "RandomCrop":
+                transform_test.append(augmentation_dict[s](**(setting[s] if s in setting else {})))
         
-        # train/test 사이즈는 맞아야 하기 때문에 crop을 사용할 거면 양쪽에 모두 적용
-        if augmentation_table["random_crop"]:
-            aug_transforms.append(A.RandomCrop(**random_crop_setting))
         
-        
+        # test의 경우 augmentation transform은 crop을 제외하고는 적용하지 않음
         if is_train:
-            # 훈련용 변환: 랜덤 수평 뒤집기, 랜덤 회전, 랜덤 밝기 및 대비 조정 추가
-            if augmentation_table["horizontal_flip"]:
-                aug_transforms.append(A.HorizontalFlip(**horizontal_flip_setting))
-            if augmentation_table["shift_scale_rotate"]:
-                aug_transforms.append(A.ShiftScaleRotate(**shift_scale_rotate_setting))
-            if augmentation_table["bright_contrast"]:
-                aug_transforms.append(A.RandomBrightnessContrast(**bright_contrast_setting))
-            if augmentation_table["coarse_dropout"]:
-                aug_transforms.append(A.CoarseDropout(**coarse_dropout_setting))
-            
-            
-            self.transform = A.Compose(
-                resize + aug_transforms + common_transforms
-            )
+            self.transform = A.Compose(resize_transform + transform_train + common_transforms)
         else:
-            self.transform = A.Compose(
-                resize + aug_transforms +common_transforms)
+            self.transform = A.Compose(resize_transform + transform_test + common_transforms)
             
         # save augmentation setting
         A.save(self.transform, os.path.join("./config", save_name), data_format='yaml')
+    
+    
     
     # 저장되어 있는 transform 세팅을 yml로부터 읽어오는 메서드
     def load_transform(self, path):

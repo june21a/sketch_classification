@@ -1,24 +1,21 @@
 from torch import optim
 
 
-def get_schedular(name, optimizer, steps_per_epoch, **kwargs):
+def get_schedular(optimizer, **kwargs):
+    name = kwargs["name"] if "setting" in kwargs else "cosine"
+    setting = kwargs["setting"] if "setting" in kwargs else {}
+    
     if name == "steplr":
-        scheduler_step_size = 30  # 매 30step마다 학습률 감소
-        scheduler_gamma = 0.1  # 학습률을 현재의 10%로 감소
-        
-
-        # 2 epoch마다 학습률을 감소시키는 스케줄러 선언
-        epochs_per_lr_decay = 2
-        scheduler_step_size = steps_per_epoch * epochs_per_lr_decay
-
         scheduler = optim.lr_scheduler.StepLR(
-            optimizer, 
-            step_size=scheduler_step_size, 
-            gamma=scheduler_gamma
+            optimizer,
+            **setting
         )
     elif name == "cosine":
-        T_max = 10
-        eta_min = 1e-6
-        scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=T_max, eta_min=eta_min)
+        scheduler = optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            **setting
+        )
+    else:
+        raise NameError(f"{name} is not defined")
     
     return scheduler
