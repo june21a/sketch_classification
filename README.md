@@ -1,4 +1,5 @@
 # 파일 구조
+```
 📦EDA
  ┣ 📜EDA.ipynb
  ┣ 📂_list
@@ -25,7 +26,7 @@
 📜infer.py
 📜requirements.txt
 📜train.py
-
+```
 
 
 # dataloader
