@@ -1,3 +1,7 @@
+# Description
+- 네이버 부스트캠프 CV트랙 첫번째 프로젝트를 위한 베이스라인 코드입니다
+- 주어진 baseline에서부터 시작하여 실험을 쉽게 돌릴 수 있도록 refactoring하였습니다
+
 # 파일 구조
 ```
 📦EDA
@@ -35,23 +39,19 @@
 
 
 # config
-- train, inference시에 transform이나 setting에 대해 저장하는 yml파일이 위치합니다
-- train, inference전에 세팅은 여기서 바꾸시면 됩니다
-- 나중에 많이 바꿔가며 실험해야할 부분은 argparser로 대체할 예정
+- train, inference시에 transform이 제대로 적용되었는지 디버깅 가능(사용한 세팅을 ---_transform.yml로 저장)
+- train, inference시의 hyperparameter를 지정 가능
 
 # infer.py
 - inference시에 사용
-- test_setting.yml에서 model_name, save_result_path는 꼭 바꾸도록 해주세요
-- ensemble은 아직 구현하지 않았습니다.
+- test_setting.yml에서 model_name, save_result_path는 필수 체크
 
 # train.py
 - train시에 사용
-- augmentation과 훈련 설정을 여기서 바꿀 수 있습니다
-- 새로운 augmentation을 더 적용하려면 바꿔야하는 부분은 주석에 설명되어 있습니다
-- 마찬가지로 훈련 전 model_name과 save_result_path는 꼭 바꾸도록 해주세요
-- wandb를 사용할 시 project_name과 test_name도 정확한 기록을 위해 주의해 주세요
+- train_setting.yml에서 model_name과 save_result_path 확인 필수
+- wandb를 사용할 시 project_name과 test_name 확인 필수
 
 
 # optimizer, loss, schedular
-- 각각에 대한 .py파일이 model폴더에 존재하며 불러오기 좀 더 쉽게 모듈화를 하려고 했지만 큰 의미는 없는 것 같습니다
-- 다른 optimizer, logg, schedular를 사용하고 싶으시면 train.py의 main()함수에서 간단히 수정 가능합니다.
+- yml로 쉽게 관리하기 위하여 모듈화
+- loss 추가 방법은 notion 참고
