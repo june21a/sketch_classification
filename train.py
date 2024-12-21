@@ -212,12 +212,13 @@ def main():
 
     # parse augmentation and preprocessing setting
     AUGMENTATION = config["augmentation"]
+    
+    
     ##########################################################################################################
     ##### wandb setting
     wandb.init(project=config["project_name"])
     wandb.run.name = config["test_name"]
     wandb.run.save()
-    
     wandb.config.update(config)
     ##########################################################################################################
     
